@@ -243,7 +243,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     if targetPosition then
         MasterContainer.Position = MasterContainer.Position:Lerp(targetPosition, smoothness)
     end
-end))
+end)
 
 
 
