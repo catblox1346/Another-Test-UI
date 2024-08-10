@@ -891,38 +891,10 @@ do
             ColorpickerboxOutline.MouseLeave:Connect(function()
                 util.tween(ColorpickerboxOutline, { BackgroundColor3 = theme.InteractableOutline }, 0.1)
             end)
-            panel.tab.library.registerExternalClickFunction = function(callback)
-                local userInputService = game:GetService("UserInputService")
-            
-                local function onInputBegan(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        local mouseLocation = userInputService:GetMouseLocation()
-                        local isClickOutside = true
-            
-                        for _, guiElement in pairs({ColorpickerWindowContainer, otherGuiElements}) do
-                            if guiElement and guiElement.Visible and guiElement.AbsolutePosition.X <= mouseLocation.X
-                                and guiElement.AbsolutePosition.X + guiElement.AbsoluteSize.X >= mouseLocation.X
-                                and guiElement.AbsolutePosition.Y <= mouseLocation.Y
-                                and guiElement.AbsolutePosition.Y + guiElement.AbsoluteSize.Y >= mouseLocation.Y then
-                                isClickOutside = false
-                                break
-                            end
-                        end
-            
-                        if isClickOutside then
-                            callback(input)
-                        end
-                    end
-                end
-            
-                userInputService.InputBegan:Connect(onInputBegan)
-            end
-            
-            panel.tab.library.registerExternalClickFunction(function(inp)
+            panel.tab.library.registerExternalClickFunction(function(inp) --click outside dropdown
                 self.expandedColor = false
                 ColorpickerWindowContainer.Visible = self.expandedColor
             end)
-            
 
             colorpickerReturn = {
                 setColor = setColor,
