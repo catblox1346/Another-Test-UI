@@ -198,9 +198,9 @@ do
             })
         })
 
---// Dragability
+--// Dragability -- totally didnt use chatgpt here :3
 local isDragging = false
-local draggingOffset -- distance from top-left corner to mouse
+local draggingOffset
 local runService = game:GetService("RunService")
 
 -- Smoothness factor (0.1 makes it smooth; 1 makes it instant)
@@ -210,7 +210,7 @@ table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
     if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
         local mouse = input:GetMouseLocation() - inset
         local topLeft = MasterContainer.AbsolutePosition
-        local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30) -- topbar for click area
+        local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30)
 
         if mouse.X > topLeft.X and mouse.X < bottomRight.X then
             if mouse.Y > topLeft.Y and mouse.Y < bottomRight.Y then
@@ -233,7 +233,6 @@ local function updatePosition()
         local targetPos = mouse - draggingOffset
         local currentPos = MasterContainer.Position
 
-        -- Use Lerp for smooth transition
         local newX = currentPos.X.Offset + (targetPos.X - currentPos.X.Offset) * smoothFactor
         local newY = currentPos.Y.Offset + (targetPos.Y - currentPos.Y.Offset) * smoothFactor
 
@@ -241,7 +240,6 @@ local function updatePosition()
     end
 end
 
--- Connect the updatePosition function to RenderStepped for ultra-smooth dragging
 table.insert(connections, runService.RenderStepped:Connect(updatePosition))
 
 --// External click "signal" -> Used for dropdowns to detect if someone clicks outside of the dropdown -> close dropdown
