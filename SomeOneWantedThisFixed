@@ -216,13 +216,13 @@ table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
             targetPosition = MasterContainer.Position.Position
         end
     end
-end)
+end))
 
 table.insert(connections, input.InputEnded:Connect(function(inp, gpe)
     if isDragging and inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
         isDragging = false
     end
-end)
+end))
 
 table.insert(connections, input.InputChanged:Connect(function(inp, gpe)
     if isDragging and inp.UserInputType == Enum.UserInputType.MouseMovement and not gpe then
@@ -237,7 +237,7 @@ table.insert(connections, input.InputChanged:Connect(function(inp, gpe)
         
         targetPosition = UDim2.new(0, guiPos.X, 0, guiPos.Y)
     end
-end)
+end))
 
 game:GetService("RunService").RenderStepped:Connect(function()
     if targetPosition then
