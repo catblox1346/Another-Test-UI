@@ -198,60 +198,44 @@ do
             })
         })
 
---// Dragability
-local isDragging = false
-local draggingOffset
-local targetPosition
-local smoothness = 0.2
+        --// Dragability
+        local isDragging = false
+        local draggingOffset --distance from topleft corner to mouse
 
-table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
-        local mouse = input:GetMouseLocation() - inset
-        local topLeft = MasterContainer.AbsolutePosition
-        local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30) -- Top bar click area
+        table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
+                local mouse = input:GetMouseLocation() - inset
+                local topLeft = MasterContainer.AbsolutePosition
+                local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30) -- of topbar -> for click area
 
-        if mouse.X > topLeft.X and mouse.X < bottomRight.X and mouse.Y > topLeft.Y and mouse.Y < bottomRight.Y then
-            isDragging = true
-            draggingOffset = mouse - topLeft
-            targetPosition = MasterContainer.Position
-        end
-    end
-end))
+                if mouse.X > topLeft.X and mouse.X < bottomRight.X then
+                    if mouse.Y > topLeft.Y and mouse.Y < bottomRight.Y then
+                        isDragging = true
+                        draggingOffset = mouse - topLeft
+                    end
+                end
+            end
+        end))
+        table.insert(connections, input.InputEnded:Connect(function(inp, gpe)
+            if isDragging and inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe  then
+                isDragging = false
+            end
+        end))
+        table.insert(connections, input.InputChanged:Connect(function(inp, gpe)
+            if isDragging and inp.UserInputType == Enum.UserInputType.MouseMovement and not gpe  then
+                local guiPos = input:GetMouseLocation() - draggingOffset - inset
+                MasterContainer.Position = UDim2.new(0, guiPos.X, 0, guiPos.Y)
+            end
+        end))
 
-table.insert(connections, input.InputEnded:Connect(function(inp, gpe)
-    if isDragging and inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
-        isDragging = false
-    end
-end))
-
-table.insert(connections, input.InputChanged:Connect(function(inp, gpe)
-    if isDragging and inp.UserInputType == Enum.UserInputType.MouseMovement and not gpe then
-        local guiPos = input:GetMouseLocation() - draggingOffset - inset
-        targetPosition = UDim2.new(0, guiPos.X, 0, guiPos.Y)
-    end
-end))
-
-game:GetService("RunService").RenderStepped:Connect(function()
-    if targetPosition then
-        -- Smooth movement using Lerp
-        MasterContainer.Position = MasterContainer.Position:Lerp(targetPosition, smoothness)
-    end
-end)
-
---// External click "signal" -> Used for dropdowns to detect if someone clicks outside of the dropdown -> close dropdown
-local externalClickFunctions = {}
-local function registerExternalClickFunction(f)
-    table.insert(externalClickFunctions, f)
-end
-
-MasterContainer.InputBegan:Connect(function(inp, gpe)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
-        for _, f in pairs(externalClickFunctions) do
-            f(inp)
-        end
-    end
-end)
-
+        --// External click "signal" -> Used for dropdowns to detect if someone clicks outside of the dropdown -> close dropdown
+        local externalClickFunctions = {}
+        local function registerExternalClickFunction(f) table.insert(externalClickFunctions, f) end
+        MasterContainer.InputBegan:Connect(function(inp, gpe)
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe  then
+                for _,f in pairs(externalClickFunctions) do f(inp) end
+            end
+        end)
 
 
         return setmetatable({
