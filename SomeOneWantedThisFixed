@@ -198,44 +198,52 @@ do
             })
         })
 
-        --// Dragability
-        local isDragging = false
-        local draggingOffset --distance from topleft corner to mouse
+--// Dragability
+local isDragging = false
+local draggingOffset -- distance from top-left corner to mouse
+local runService = game:GetService("RunService")
 
-        table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
-                local mouse = input:GetMouseLocation() - inset
-                local topLeft = MasterContainer.AbsolutePosition
-                local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30) -- of topbar -> for click area
+table.insert(connections, input.InputBegan:Connect(function(inp, gpe)
+    if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
+        local mouse = input:GetMouseLocation() - inset
+        local topLeft = MasterContainer.AbsolutePosition
+        local bottomRight = topLeft + Vector2.new(MasterContainer.AbsoluteSize.X, 30) -- topbar for click area
 
-                if mouse.X > topLeft.X and mouse.X < bottomRight.X then
-                    if mouse.Y > topLeft.Y and mouse.Y < bottomRight.Y then
-                        isDragging = true
-                        draggingOffset = mouse - topLeft
-                    end
-                end
+        if mouse.X > topLeft.X and mouse.X < bottomRight.X then
+            if mouse.Y > topLeft.Y and mouse.Y < bottomRight.Y then
+                isDragging = true
+                draggingOffset = mouse - topLeft
             end
-        end))
-        table.insert(connections, input.InputEnded:Connect(function(inp, gpe)
-            if isDragging and inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe  then
-                isDragging = false
-            end
-        end))
-        table.insert(connections, input.InputChanged:Connect(function(inp, gpe)
-            if isDragging and inp.UserInputType == Enum.UserInputType.MouseMovement and not gpe  then
-                local guiPos = input:GetMouseLocation() - draggingOffset - inset
-                MasterContainer.Position = UDim2.new(0, guiPos.X, 0, guiPos.Y)
-            end
-        end))
+        end
+    end
+end))
 
-        --// External click "signal" -> Used for dropdowns to detect if someone clicks outside of the dropdown -> close dropdown
-        local externalClickFunctions = {}
-        local function registerExternalClickFunction(f) table.insert(externalClickFunctions, f) end
-        MasterContainer.InputBegan:Connect(function(inp, gpe)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe  then
-                for _,f in pairs(externalClickFunctions) do f(inp) end
-            end
-        end)
+table.insert(connections, input.InputEnded:Connect(function(inp, gpe)
+    if isDragging and inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
+        isDragging = false
+    end
+end))
+
+local function updatePosition()
+    if isDragging then
+        local mouse = input:GetMouseLocation() - inset
+        local guiPos = mouse - draggingOffset
+        MasterContainer.Position = UDim2.new(0, guiPos.X, 0, guiPos.Y)
+    end
+end
+
+-- Connect the updatePosition function to RenderStepped for smooth dragging
+table.insert(connections, runService.RenderStepped:Connect(updatePosition))
+
+--// External click "signal" -> Used for dropdowns to detect if someone clicks outside of the dropdown -> close dropdown
+local externalClickFunctions = {}
+local function registerExternalClickFunction(f) table.insert(externalClickFunctions, f) end
+MasterContainer.InputBegan:Connect(function(inp, gpe)
+    if inp.UserInputType == Enum.UserInputType.MouseButton1 and not gpe then
+        for _, f in pairs(externalClickFunctions) do f(inp) end
+    end
+end)
+
 
 
         return setmetatable({
