@@ -181,15 +181,18 @@ local warningCloseButton = Instance.new("ImageButton")
 local previousUiExists = game:GetService("CoreGui"):FindFirstChild("notifications")
 if previousUiExists then previousUiExists:Destroy() end
 
+--[[
 openSound.Name = "OpenNotifSound"
 openSound.Volume = 1
 openSound.SoundId = "rbxassetid://9128519965"
 openSound.Parent = ss
 
+
 closeSound.Name = "CloseNotifSound"
 closeSound.Volume = 1
 closeSound.SoundId = "rbxassetid://9128519965"
 closeSound.Parent = ss
+--]]
 
 notifications.Name = "notifications"
 notifications.Parent = game:GetService("CoreGui")
